@@ -123,7 +123,7 @@ exports.getNonFollowers = catchAsyncErrors(async (req, res, next) => {
     }
 
     const baseQuery = `
-        SELECT u.id, u.name, u.profilePic
+        SELECT u.id, u.username, u.profilePic
         FROM users u
         WHERE u.id != ? 
         AND NOT EXISTS (
@@ -166,7 +166,7 @@ exports.getFollowersData = catchAsyncErrors(async (req, res, next) => {
     }
 
     const baseQuery = `
-        SELECT u.id, u.name, u.profilePic
+        SELECT u.id, u.username, u.profilePic
         FROM users u
         JOIN relationships r ON u.id = r.followerUserId
         WHERE r.followedUserId = ?

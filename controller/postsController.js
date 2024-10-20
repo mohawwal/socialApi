@@ -19,7 +19,7 @@ exports.getAllPosts = catchAsyncErrors(async (req, res, next) => {
             
             const totalPosts = countData[0].totalPosts;
             
-            let q = `SELECT p.*, u.id AS userId, u.name, u.profilePic
+            let q = `SELECT p.*, u.id AS userId, u.username, u.profilePic
                      FROM posts AS p 
                      JOIN users AS u ON u.id = p.userId`;
 
@@ -53,7 +53,7 @@ exports.getUsersPosts = catchAsyncErrors(async (req, res, next) => {
 
 	try {
 		const q = `
-            SELECT DISTINCT p.*, u.id AS userId, name, profilePic 
+            SELECT DISTINCT p.*, u.id AS userId, username, profilePic 
             FROM posts AS p 
             JOIN users AS u ON (u.id = p.userId) 
             LEFT JOIN relationships AS r ON (p.userId = r.followedUserId) 

@@ -17,8 +17,7 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
         !req.body ||
         !req.body.username ||
         !req.body.email ||
-        !req.body.password ||
-        !req.body.name
+        !req.body.password 
     ) {
         return next(new ErrorHandler("Please provide all required fields", 400));
     }
@@ -50,7 +49,7 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
         const hashedPassword = bcrypt.hashSync(req.body.password, salt);
 
         const insertUserQuery =
-            "INSERT INTO social.users (`username`, `email`, `password`, `name`, `profilePic`) VALUES (?)";
+            "INSERT INTO social.users (`username`, `email`, `password`, `profilePic`) VALUES (?)";
         
         // Use avatar URL or set a default value if no avatar uploaded
         const avatarUrl = avatar ? avatar.secure_url : "default/avatar/url"; 
@@ -59,7 +58,6 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
             req.body.username,
             req.body.email,
             hashedPassword,
-            req.body.name,
             avatarUrl
         ];
 

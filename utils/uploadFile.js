@@ -8,6 +8,7 @@ const uploadFile = (fileBuffer, folder) => {
                 folder,
                 quality: "auto", 
                 format: "webp",  
+                //allowedFormats: ['png', 'jpg', 'jpeg', 'avif'],
                 transformation: [
                     { width: 800, crop: "scale" }
                 ]

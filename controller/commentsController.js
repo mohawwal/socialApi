@@ -37,7 +37,7 @@ exports.postComment = catchAsyncErrors(async (req, res, next) => {
 exports.getComments = catchAsyncErrors(async (req, res, next) => {
 
     const q = `
-            SELECT c.*, u.id AS userId, name, profilePic 
+            SELECT c.*, u.id AS userId, username, profilePic 
             FROM comments AS c 
             JOIN users AS u ON (u.id = c.userId)
             WHERE c.postId = ?
