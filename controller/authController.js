@@ -16,6 +16,7 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
     if (
         !req.body ||
         !req.body.username ||
+        !req.body.name ||
         !req.body.email ||
         !req.body.password 
     ) {
@@ -49,13 +50,14 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
         const hashedPassword = bcrypt.hashSync(req.body.password, salt);
 
         const insertUserQuery =
-            "INSERT INTO social.users (`username`, `email`, `password`, `profilePic`) VALUES (?)";
+            "INSERT INTO social.users (`username`, `name`, `email`, `password`, `profilePic`) VALUES (?)";
         
         // Use avatar URL or set a default value if no avatar uploaded
         const avatarUrl = avatar ? avatar.secure_url : "default/avatar/url"; 
 
         const values = [
             req.body.username,
+            req.body.name,
             req.body.email,
             hashedPassword,
             avatarUrl

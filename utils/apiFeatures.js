@@ -9,10 +9,10 @@ class APIFeatures {
         if (this.queryStr.keyword) {
             const keyword = this.queryStr.keyword;
             if (!this.hasWhereClause) {
-                this.query += ` WHERE name LIKE '%${keyword}%'`;
+                this.query += ` WHERE Username LIKE '%${keyword}%'`;
                 this.hasWhereClause = true;
             } else {
-                this.query += ` AND name LIKE '%${keyword}%'`;
+                this.query += ` AND Username LIKE '%${keyword}%'`;
             }
         }
         return this;

@@ -28,6 +28,7 @@ exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 				data: users,
 			});
 		});
+		
 	} catch (error) {
 		console.log(error);
 	}
