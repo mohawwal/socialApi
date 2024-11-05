@@ -2,8 +2,8 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const { db } = require("../config/database");
 const APIFeatures = require("../utils/apiFeatures");
-const cloudinary = require('cloudinary')
-const uploadFile = require('../utils/uploadFile')
+const cloudinary = require("cloudinary");
+const uploadFile = require("../utils/uploadFile");
 
 exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 	try {
@@ -28,7 +28,6 @@ exports.allUsers = catchAsyncErrors(async (req, res, next) => {
 				data: users,
 			});
 		});
-		
 	} catch (error) {
 		console.log(error);
 	}
@@ -60,7 +59,6 @@ exports.findUserById = catchAsyncErrors(async (req, res, next) => {
 	}
 });
 
-
 exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
 	const userId = req.user;
 
@@ -73,53 +71,65 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
 			Bio: req.body.Bio,
 			instagram: req.body.instagram,
 			x: req.body.x,
-			linkedln: req.body.linkedln,  
+			linkedln: req.body.linkedln,
 		};
 
-		const checkUserQuery = `SELECT username FROM users WHERE username=? AND id !=?`
+		const checkUserQuery = `SELECT username FROM users WHERE username=? AND id !=?`;
 
 		db.query(checkUserQuery, [newUserData.username, userId], (err, result) => {
-			if(err) return next(new ErrorHandler(err, 500));
-			
-			if(result.length > 0) {
-				return next(new ErrorHandler("Username is already taken, please choose a different one.", 400));
+			if (err) return next(new ErrorHandler(err, 500));
+
+			if (result.length > 0) {
+				return next(new ErrorHandler("Username is already taken", 400));
 			}
-		})
+		});
 
 		// SQL query to fetch profile and cover pictures
 		const q = `SELECT profilePic, coverPic FROM users WHERE id=?`;
 		db.query(q, [userId], async (err, data) => {
 			if (err) return next(new ErrorHandler(err, 500));
 
-			const profilePic = data[0].profilePic;
-			const coverPic = data[0].coverPic;
+			const existingProfilePic = data[0].profilePic;
+			const existingCoverPic = data[0].coverPic;
 
-			if (req.files) {
-				if (req.files['profilePic'] && profilePic && profilePic.length !== 0) {
-					const public_Id = profilePic.split('/').slice(-3).join('/').split('.')[0];
+			if (req.files && req.files["profilePic"]) {
+				if (existingProfilePic && existingProfilePic.length !== 0) {
+					const public_Id = existingProfilePic
+						.split("/")
+						.slice(-3)
+						.join("/")
+						.split(".")[0];
 					await cloudinary.uploader.destroy(public_Id);
 				}
+				const profilePicResult = await uploadFile(
+					req.files["profilePic"][0].buffer,
+					"socialApp/profileImg",
+				);
+				if (profilePicResult) {
+					newUserData.profilePic = profilePicResult.secure_url;
+				}
+			} else {
+				newUserData.profilePic = existingProfilePic;
+			}
 
-				// If coverPic is provided
-				if (req.files['coverPic'] && coverPic && coverPic.length !== 0) {
-					const public_Id = coverPic.split('/').slice(-3).join('/').split('.')[0];
+			if (req.files && req.files["coverPic"]) {
+				if (existingCoverPic && existingCoverPic.length !== 0) {
+					const public_Id = existingCoverPic
+						.split("/")
+						.slice(-3)
+						.join("/")
+						.split(".")[0];
 					await cloudinary.uploader.destroy(public_Id);
 				}
-
-				if(req.files['profilePic']) {
-					const profilePicResult = await uploadFile(req.files['profilePic'][0].buffer, "socialApp/profileImg");
-					if (profilePicResult) {
-						newUserData.profilePic = profilePicResult.secure_url;
-					}
+				const coverPicResult = await uploadFile(
+					req.files["coverPic"][0].buffer,
+					"socialApp/coverImg",
+				);
+				if (coverPicResult) {
+					newUserData.coverPic = coverPicResult.secure_url;
 				}
-
-				if (req.files['coverPic']) {
-					const coverPicResult = await uploadFile(req.files['coverPic'][0].buffer, "socialApp/coverImg");
-					if (coverPicResult) {
-						newUserData.coverPic = coverPicResult.secure_url;
-					}
-				}
-
+			} else {
+				newUserData.coverPic = existingCoverPic;
 			}
 
 			await updateUserProfile(req, res, next, newUserData);
@@ -133,11 +143,35 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
 // Function to update the user's profile in the database
 async function updateUserProfile(req, res, next, newProfileData) {
 	const userId = req.user;
-	const { username, email, city, website, Bio, instagram, x, coverPic, profilePic, linkedln } = newProfileData;
+	const {
+		username,
+		email,
+		city,
+		website,
+		Bio,
+		instagram,
+		x,
+		coverPic,
+		profilePic,
+		linkedln,
+	} = newProfileData;
 
 	try {
-		const q = "UPDATE users SET username=?, email=?, city=?, website=?, Bio=?, instagram=?, coverPic=?, profilePic=?, x=?, linkedln=? WHERE id = ?";
-		const values = [username, email, city, website, Bio, instagram, coverPic, profilePic, x, linkedln, userId];
+		const q =
+			"UPDATE users SET username=?, email=?, city=?, website=?, Bio=?, instagram=?, coverPic=?, profilePic=?, x=?, linkedln=? WHERE id = ?";
+		const values = [
+			username,
+			email,
+			city,
+			website,
+			Bio,
+			instagram,
+			coverPic,
+			profilePic,
+			x,
+			linkedln,
+			userId,
+		];
 
 		db.query(q, values, (err, data) => {
 			if (err) {
