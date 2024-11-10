@@ -41,6 +41,8 @@ app.use('/api', likeRouter);
 const relationshipRouter = require('./routes/relationships');
 app.use('/api', relationshipRouter);
 
+const messageRouter = require('./routes/message');
+app.use('/api', messageRouter);
 
 
 // Error handling middleware (optional)
